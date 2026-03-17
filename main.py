@@ -11,8 +11,8 @@ api_hash = os.getenv('API_HASH')
 
 app = Client(
     'main',
-    api_id = 25142799,
-    api_hash = 'a5298fa5d1e7e8d6b5197e5a15c7b44c',
+    api_id = api_id,
+    api_hash = api_hash,
     plugins = dict(root='modules'),
 )
 
