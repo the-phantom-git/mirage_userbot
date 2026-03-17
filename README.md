@@ -8,7 +8,9 @@ pkg install python git -y
 pip install --upgrade pip
 git clone https://github.com/the-phantom-git/mirage_userbot.git
 cd mirage_userbot
-pip install -r requirements.txt
+pip install pyrogram
+pip install tgcrypto
+pip install dotenv
 ```
 
 ## Настройка
