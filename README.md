@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 ## Настройка
 
-В файлк main.py замените api_id и api_hash на свои:
+В файле main.py замените api_id и api_hash на свои:
 ```Python
 app = Client(
     'main',
@@ -19,7 +19,7 @@ app = Client(
     plugins = dict(root='modules'),
 )
 ```
-А так же удалите эти строки кода:
+А так же удалите эти строки кода в main.py:
 
 ```Python
 from dotenv import load_dotenv
@@ -39,7 +39,7 @@ api_id=your_api_id
 api_hash=your_api_hash
 ```
 
-## Запуск
+## Запуск в консоль
 
 ```bash
 python main.py
