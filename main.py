@@ -18,8 +18,8 @@ app = Client(
 
 
 if __name__ == '__main__':
-    print('Mirage has been activated.')
+    print('Мираж активирован.')
     try:
         app.run()
     except KeyboardInterrupt:
-        print('Mirage was stopped in console.')
+        print('Мираж остановлен.')
