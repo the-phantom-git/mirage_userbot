@@ -17,7 +17,8 @@ pip install dotenv
 
 ВАЖНО! Чтобы найти ваш api_id и api_hash нужно войти на сайте телеграма https://my.telegram.org/auth
 Чтобы понять как получить api_id и api_hash на сайте, посмотрите пару видео в ютубе по запросу "api_id и api_hash как получить?"
-Создайте файл .env:
+
+Создайте файл .env и поместите туда ваши api_id api_hash:
 ```Python
 
 
