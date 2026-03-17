@@ -25,6 +25,10 @@ pip install dotenv
 API_ID=your_api_id
 API_HASH=your_api_hash
 ```
+## Обновление
+
+cd mirage_userbot
+git pull
 
 ## Запуск в консоль
 
