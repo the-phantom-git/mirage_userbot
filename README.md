@@ -33,7 +33,9 @@ pip install --upgrade pip
 git clone https://github.com/the-phantom-git/mirage_userbot.git
 cd mirage_userbot
 
-pip install pyrogram tgcrypto dotenv
+pip install pyrogram
+pip install tgcrypto
+pip install dotenv
 ```
 
 ---
