@@ -3,7 +3,6 @@ from pyrogram import Client, filters
 
 
 def _parse_duration(tokens):
-
     if len(tokens) < 2:
         return None, tokens
 
@@ -27,7 +26,6 @@ def _parse_duration(tokens):
 
 
 def _sender(m):
-
     if not m.from_user:
         return None
 
@@ -35,68 +33,51 @@ def _sender(m):
         return f'@{m.from_user.username}'
 
     name = f'{m.from_user.first_name or ""} {m.from_user.last_name or ""}'.strip()
-
-    if name:
-        return name
-
-    return f'id{m.from_user.id}'
+    return name if name else f'id{m.from_user.id}'
 
 
 def _format(m, text):
-
     sender = _sender(m)
-
     if not sender:
         return None
 
-    time = m.date.strftime('%d.%m.%Y в %H:%M')
-
+    time = m.date.strftime('%d.%m.%Y %H:%M')
     snippet = text.replace('\n', ' ')
 
     if len(snippet) > 120:
         snippet = snippet[:117] + '...'
 
-    return f'{sender} - {time}: {snippet}'
+    return f'{sender} | {time}: {snippet}'
 
 
 @Client.on_message(filters.me & filters.command('search', '.'))
 async def search(app: Client, msg):
+    print("[COMMAND] .search")
 
     args = msg.text.split()[1:]
-
     if not args:
-        return
+        return await msg.reply("Ошибка: укажите текст для поиска.")
 
     duration, args = _parse_duration(args)
-
     if duration is None:
         duration = timedelta(days=3650)
 
     query = ' '.join(args)
-
     oldest = datetime.utcnow() - duration
+
+    status = await msg.reply("Поиск запущен...")
 
     results = []
 
-    async for m in app.search_messages(
-        msg.chat.id,
-        query=query,
-        limit=100
-    ):
-
-        if not m.date:
-            continue
-
-        if m.date < oldest:
+    async for m in app.search_messages(msg.chat.id, query=query, limit=100):
+        if not m.date or m.date < oldest:
             continue
 
         text = m.text or m.caption
-
         if not text:
             continue
 
         formatted = _format(m, text)
-
         if formatted:
             results.append(formatted)
 
@@ -104,51 +85,39 @@ async def search(app: Client, msg):
             break
 
     if not results:
-        return await msg.reply('Ничего не найдено.')
+        return await status.edit_text("Результаты не найдены.")
 
-    await msg.reply('\n'.join(results))
+    await status.edit_text("\n".join(results))
 
 
 @Client.on_message(filters.me & filters.command('searchdeep', '.'))
 async def search_deep(app: Client, msg):
+    print("[COMMAND] .searchdeep")
 
     args = msg.text.split()[1:]
-
     if not args:
-        return
+        return await msg.reply("Ошибка: укажите текст для поиска.")
 
     duration, args = _parse_duration(args)
-
     if duration is None:
         duration = timedelta(days=3650)
 
     query = ' '.join(args).lower()
-
     oldest = datetime.utcnow() - duration
+
+    status = await msg.reply("Глубокий поиск запущен...")
 
     results = []
 
-    async for m in app.get_chat_history(
-        msg.chat.id,
-        limit=100
-    ):
-
-        if not m.date:
-            continue
-
-        if m.date < oldest:
+    async for m in app.get_chat_history(msg.chat.id, limit=100):
+        if not m.date or m.date < oldest:
             break
 
         text = m.text or m.caption
-
-        if not text:
-            continue
-
-        if query not in text.lower():
+        if not text or query not in text.lower():
             continue
 
         formatted = _format(m, text)
-
         if formatted:
             results.append(formatted)
 
@@ -156,6 +125,6 @@ async def search_deep(app: Client, msg):
             break
 
     if not results:
-        return await msg.reply('Ничего не найдено.')
+        return await status.edit_text("Результаты не найдены.")
 
-    await msg.reply('\n'.join(results))
+    await status.edit_text("\n".join(results))
