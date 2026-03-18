@@ -56,7 +56,7 @@ pip install pyrogram tgcrypto dotenv
 Переходим на сайт:
 → https://my.telegram.org/auth
 
-Войдите в аккаунт и получи:
+Войдите в аккаунт и получите:
 
 * `api_id`
 * `api_hash`
