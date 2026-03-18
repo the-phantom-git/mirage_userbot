@@ -25,7 +25,9 @@ Userbot на Pyrogram для Telegram.
 
 ```bash
 pkg update && pkg upgrade -y
-pkg install python git -y
+pkg install python -y
+pkg install git -y
+pkg install nano -y
 pip install --upgrade pip
 
 git clone https://github.com/the-phantom-git/mirage_userbot.git
