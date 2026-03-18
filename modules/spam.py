@@ -76,8 +76,6 @@ async def spam(app: Client, msg):
 
     _spam_stop = False
 
-    await msg.edit_text("Запуск процесса отправки сообщений...")
-
     control_msg = await msg.reply(
         f"Процесс запущен.\nСообщений: {count}\nЗадержка: {delay_ms} мс"
     )
