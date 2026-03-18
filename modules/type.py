@@ -16,7 +16,7 @@ async def _typing_loop(app: Client, msg, text: str, delay_ms: int):
         await msg.edit_text(built)
 
 
-@Client.on_message(filters.me & filters.command('type', '.'))
+@Client.on_message(filters.me & filters.command('type', ','))
 async def typing_animation(app: Client, msg):
     global _type_task
 
@@ -43,7 +43,7 @@ async def typing_animation(app: Client, msg):
     await msg.edit_text(f'Запущена печать: "{text}" (задержка {delay_ms} мс). Используйте .stoptype для остановки.')
 
 
-@Client.on_message(filters.me & filters.command('stoptype', '.'))
+@Client.on_message(filters.me & filters.command('stoptype', ','))
 async def stop_typing(app: Client, msg):
     global _type_task 
     if _type_task and not _type_task.done():

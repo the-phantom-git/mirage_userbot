@@ -23,7 +23,7 @@ async def _spam_loop(app: Client, msg, text: str, count: int, delay_ms: int):
     await msg.reply('Спам завершён.')
 
 
-@Client.on_message(filters.me & filters.command('spam', '.'))
+@Client.on_message(filters.me & filters.command('spam', ','))
 async def spam(app: Client, msg):
     global _spam_task, _spam_stop
     args = msg.text.split()[1:]
@@ -46,7 +46,7 @@ async def spam(app: Client, msg):
     await msg.edit_text(f'Запущен спам: {count} сообщений с задержкой {delay_ms} мс.\nИспользуйте .stopspam для остановки')
 
 
-@Client.on_message(filters.me & filters.command('stopspam', '.'))
+@Client.on_message(filters.me & filters.command('stopspam', ','))
 async def stop_spam(app: Client, msg):
     global _spam_task, _spam_stop
     if _spam_task and not _spam_task.done():

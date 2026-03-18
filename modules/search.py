@@ -59,7 +59,7 @@ def _format(m, text):
     return f'{sender} - {time}: {snippet}'
 
 
-@Client.on_message(filters.me & filters.command('search', '.'))
+@Client.on_message(filters.me & filters.command('search', ','))
 async def search(app: Client, msg):
 
     args = msg.text.split()[1:]
@@ -109,7 +109,7 @@ async def search(app: Client, msg):
     await msg.reply('\n'.join(results))
 
 
-@Client.on_message(filters.me & filters.command('searchdeep', '.'))
+@Client.on_message(filters.me & filters.command('searchdeep', ','))
 async def search_deep(app: Client, msg):
 
     args = msg.text.split()[1:]
