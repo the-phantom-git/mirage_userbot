@@ -79,7 +79,7 @@ async def _update_status_text():
         return
 
     if not start_time:
-        return await status_msg.edit_text("Статус: инициализация...")
+        return await status_msg.edit_text("Активный процесс отсутствует.")
 
     now = time.time()
     elapsed = now - start_time
