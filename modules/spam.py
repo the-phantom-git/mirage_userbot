@@ -112,6 +112,9 @@ async def _spam_loop(app: Client, control_msg, text: str, count: int, delay_ms: 
     _spam_state["start_time"] = time.time()
     _spam_state["delay_ms"] = delay_ms
 
+    print("[STATUS] ЗАПУЩЕНО")
+    _log_status_console()
+
     next_pause_at = random.randint(15, 30)
 
     while _spam_state["sent"] < count:
@@ -133,10 +136,10 @@ async def _spam_loop(app: Client, control_msg, text: str, count: int, delay_ms: 
 
             if _spam_state["sent"] == next_pause_at:
                 pause = random.uniform(3, 10)
-                print(f"[SPAM] Пауза {pause:.2f} сек (после {_spam_state['sent']})")
+                print(f"[SPAM] Пауза {pause:.2f} сек")
                 await asyncio.sleep(pause)
 
-                next_pause_at += random.randint(15, 30)
+                next_pause_at += random.randint(15, 25)
 
         except FloodWait as e:
             print(f"[SPAM] FloodWait {e.value} сек")
@@ -152,10 +155,10 @@ async def _spam_loop(app: Client, control_msg, text: str, count: int, delay_ms: 
         f"Процесс завершён. Отправлено сообщений: {_spam_state['sent']}"
     )
 
-    await _update_status_text()
+    if _spam_state.get("status_view_msg"):
+        await _update_status_text()
 
     print(f"[STATUS] ЗАВЕРШЕНО: {_spam_state['sent']}/{_spam_state['count']}")
-    _log_status_console()
 
 
 @Client.on_message(filters.me & filters.command("spam", "."))
@@ -198,8 +201,6 @@ async def spam(app: Client, msg):
     _spam_task = asyncio.create_task(
         _spam_loop(app, control_msg, text, count, delay_ms)
     )
-
-    _log_status_console()
 
 
 @Client.on_message(filters.me & filters.command("spamstatus", "."))
