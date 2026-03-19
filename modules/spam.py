@@ -113,7 +113,6 @@ async def _spam_loop(app: Client, control_msg, text: str, count: int, delay_ms: 
     _spam_state["delay_ms"] = delay_ms
 
     print("[STATUS] ЗАПУЩЕНО")
-    _log_status_console()
 
     next_pause_at = random.randint(15, 30)
 
