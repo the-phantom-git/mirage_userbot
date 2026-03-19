@@ -234,4 +234,4 @@ async def stop_spam(app: Client, msg):
         _spam_task.cancel()
         await msg.edit_text("Процесс остановлен.")
     else:
-        await msg.reply("Активный процесс отсутствует.")
+        await msg.edit_text("Активный процесс отсутствует.")
