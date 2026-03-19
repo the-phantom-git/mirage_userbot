@@ -21,6 +21,41 @@ def _format_time(seconds: int):
     return str(timedelta(seconds=int(seconds)))
 
 
+def _log_status_console():
+    global _spam_task, _spam_state
+
+    if not _spam_task:
+        print("[STATUS] Процесс не запускался.")
+        return
+
+    sent = _spam_state["sent"]
+    total = _spam_state["count"]
+    start_time = _spam_state["start_time"]
+
+    if not start_time:
+        print("[STATUS] Инициализация...")
+        return
+
+    now = time.time()
+    elapsed = now - start_time
+
+    speed = sent / elapsed if elapsed > 0 else 0
+    remaining = total - sent
+    eta = remaining / speed if speed > 0 else 0
+
+    start_dt = datetime.fromtimestamp(start_time)
+    end_dt = datetime.fromtimestamp(now + eta)
+
+    print(
+        "[STATUS]\n"
+        f"  Прогресс: {sent}/{total}\n"
+        f"  Скорость: {speed:.2f} msg/sec\n"
+        f"  Запуск: {start_dt.strftime('%H:%M:%S')}\n"
+        f"  Конец (примерно): {end_dt.strftime('%H:%M:%S')}\n"
+        f"  Осталось: {_format_time(eta)}\n"
+    )
+
+
 async def _update_status_text():
     global _spam_task, _spam_state
 
@@ -34,7 +69,7 @@ async def _update_status_text():
 
     if _spam_task and _spam_task.done():
         try:
-            return await status_msg.edit_text(
+            await status_msg.edit_text(
                 "Статус процесса:\n\n"
                 f"Отправлено: {sent}/{total}\n\n"
                 "Состояние: завершён"
@@ -77,10 +112,14 @@ async def _spam_loop(app: Client, control_msg, text: str, count: int, delay_ms: 
     _spam_state["start_time"] = time.time()
     _spam_state["delay_ms"] = delay_ms
 
+    next_pause_at = random.randint(15, 30)
+
     while _spam_state["sent"] < count:
         if _spam_stop:
             await control_msg.reply("Процесс остановлен.")
             await _update_status_text()
+            print("[STATUS] ОСТАНОВЛЕНО")
+            _log_status_console()
             return
 
         try:
@@ -92,15 +131,20 @@ async def _spam_loop(app: Client, control_msg, text: str, count: int, delay_ms: 
             base_delay = delay_ms / 1000
             await asyncio.sleep(random.uniform(base_delay * 0.7, base_delay * 1.8))
 
-            if _spam_state["sent"] % random.randint(10, 20) == 0:
-                pause = random.uniform(5, 10)
+            if _spam_state["sent"] == next_pause_at:
+                pause = random.uniform(3, 10)
+                print(f"[SPAM] Пауза {pause:.2f} сек (после {_spam_state['sent']})")
                 await asyncio.sleep(pause)
 
+                next_pause_at += random.randint(15, 30)
+
         except FloodWait as e:
+            print(f"[SPAM] FloodWait {e.value} сек")
             await control_msg.reply(f"Ограничение Telegram. Ожидание {e.value} сек.")
             await asyncio.sleep(e.value + 1)
 
         except Exception as e:
+            print(f"[SPAM ERROR] {e}")
             await control_msg.reply(f"Ошибка: {e}")
             return
 
@@ -109,6 +153,9 @@ async def _spam_loop(app: Client, control_msg, text: str, count: int, delay_ms: 
     )
 
     await _update_status_text()
+
+    print(f"[STATUS] ЗАВЕРШЕНО: {_spam_state['sent']}/{_spam_state['count']}")
+    _log_status_console()
 
 
 @Client.on_message(filters.me & filters.command("spam", "."))
@@ -152,6 +199,8 @@ async def spam(app: Client, msg):
         _spam_loop(app, control_msg, text, count, delay_ms)
     )
 
+    _log_status_console()
+
 
 @Client.on_message(filters.me & filters.command("spamstatus", "."))
 async def spam_status(app: Client, msg):
@@ -161,9 +210,7 @@ async def spam_status(app: Client, msg):
 
     if _spam_state.get("status_view_msg"):
         try:
-            await _spam_state["status_view_msg"].edit_text(
-                "Статус устарел."
-            )
+            await _spam_state["status_view_msg"].edit_text("Статус устарел.")
         except:
             pass
 
@@ -172,6 +219,8 @@ async def spam_status(app: Client, msg):
     _spam_state["status_view_msg"] = status_msg
 
     await _update_status_text()
+
+    _log_status_console()
 
 
 @Client.on_message(filters.me & filters.command("stopspam", "."))
