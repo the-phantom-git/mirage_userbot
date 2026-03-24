@@ -50,8 +50,8 @@ def _log_status_console():
         "[STATUS]\n"
         f"  Прогресс: {sent}/{total}\n"
         f"  Скорость: {speed:.2f} msg/sec\n"
-        f"  Запуск: {start_dt.strftime('%H:%M:%S')}\n"
-        f"  Конец (примерно): {end_dt.strftime('%H:%M:%S')}\n"
+        f"  Запущенно в: {start_dt.strftime('%H:%M:%S')}\n"
+        f"  Ожидаемое завершение в: {end_dt.strftime('%H:%M:%S')}\n"
         f"  Осталось: {_format_time(eta)}\n"
     )
 
@@ -94,10 +94,10 @@ async def _update_status_text():
     try:
         await status_msg.edit_text(
             "Статус процесса:\n\n"
-            f"Отправлено: {sent}/{total}\n"
+            f"Прогресс: {sent}/{total}\n"
             f"Скорость: {speed:.2f} msg/sec\n\n"
-            f"Запущено: {start_dt.strftime('%H:%M:%S')}\n"
-            f"Ожидаемое завершение: {end_time.strftime('%H:%M:%S')}\n\n"
+            f"Запущено в: {start_dt.strftime('%H:%M:%S')}\n"
+            f"Ожидаемое завершение в: {end_time.strftime('%H:%M:%S')}\n\n"
             f"Осталось: {_format_time(eta)}"
         )
     except Exception as e:
@@ -142,7 +142,7 @@ async def _spam_loop(app: Client, control_msg, text: str, count: int, delay_ms: 
 
         except FloodWait as e:
             print(f"[SPAM] FloodWait {e.value} сек")
-            await control_msg.reply(f"Ограничение Telegram. Ожидание {e.value} сек.")
+            await control_msg.reply(f"Получен Floodwait. Ожидание {e.value} сек.")
             await asyncio.sleep(e.value + 1)
 
         except Exception as e:
