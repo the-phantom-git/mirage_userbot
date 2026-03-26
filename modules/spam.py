@@ -187,9 +187,7 @@ async def spam(app: Client, msg):
     task_data['state']['count'] = count
     task_data['state']['delay_ms'] = delay_ms
 
-    control_msg = await msg.reply(
-        f'[SPAM] Запущен спам\nID: {task_id}\nСообщений: {count}'
-    )
+    control_msg = await msg.edit_text(f'[SPAM] Запущен спам\nID: {task_id}\nСообщений: {count}')
 
     task = asyncio.create_task(
         _spam_loop(app, control_msg, text, task_data, task_id)
@@ -197,8 +195,6 @@ async def spam(app: Client, msg):
 
     task_data['task'] = task
     _spam_tasks[task_id] = task_data
-
-    await msg.delete()
 
 
 @Client.on_message(filters.me & filters.command('spamstatus', '.'))
