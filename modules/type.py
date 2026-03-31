@@ -25,7 +25,7 @@ async def typing_animation(app: Client, msg):
 
     args = msg.text.split()[1:]
     if not args:
-        return await msg.edit_text("Использование: .type <текст> <задержка_мс>")
+        return await msg.edit_text("[TYPE] Использование:\n.type <текст> <задержка_мс>")
 
     delay_ms = 150
     if args[-1].isdigit():
@@ -49,11 +49,11 @@ async def typing_animation(app: Client, msg):
     _type_task = asyncio.create_task(_typing_loop(msg, text, delay_ms))
 
 
-@Client.on_message(filters.me & filters.command('stoptype', '.'))
+@Client.on_message(filters.me & filters.command('typestop', '.'))
 async def stop_typing(app: Client, msg):
     global _type_task
 
-    print("[COMMAND] .stoptype")
+    print("[COMMAND] .typestop")
 
     if _type_task and not _type_task.done():
         _type_task.cancel()

@@ -8,8 +8,26 @@ from pyrogram.errors import FloodWait
 _spam_tasks = {}
 
 
-def _format_time(seconds: int):
-    return str(timedelta(seconds=int(seconds)))
+def _format_time(seconds: float):
+    seconds = max(0, int(round(seconds)))
+    return str(timedelta(seconds=seconds))
+
+
+def _format_delay(delay_ms: int):
+    seconds = delay_ms / 1000
+    return f'{seconds:.1f}сек / {delay_ms}мс'
+
+
+def _estimate_eta(remaining: int, delay_ms: int):
+    if remaining <= 0:
+        return 0.0
+
+    avg_delay = delay_ms / 1000 * 1.25
+    avg_pause_interval = 20
+    avg_pause_duration = 6.5
+    expected_pauses = (remaining + avg_pause_interval - 1) // avg_pause_interval
+
+    return remaining * avg_delay + expected_pauses * avg_pause_duration
 
 
 def _generate_task_id():
@@ -101,23 +119,25 @@ def _log_status_console():
             print(f'[{task_id}] Инициализация...')
             continue
 
-        now = time.time()
-        elapsed = now - start_time
-
-        speed = sent / elapsed if elapsed > 0 else 0
         remaining = total - sent
-        eta = remaining / speed if speed > 0 else 0
+        eta = _estimate_eta(remaining, state['delay_ms'])
+        delay_info = _format_delay(state['delay_ms'])
 
         start_dt = datetime.fromtimestamp(start_time)
-        end_dt = datetime.fromtimestamp(now + eta)
+        end_dt = datetime.fromtimestamp(time.time() + eta)
 
-        status = 'ПАУЗА' if not t['pause_event'].is_set() else 'РАБОТАЕТ'
+        if sent >= total:
+            status = 'Завершён'
+        elif not t['pause_event'].is_set():
+            status = 'Приостановлен'
+        else:
+            status = 'Работает'
 
         print(
             f'  ID: [{task_id}]\n'
             f'  Статус: {status}\n'
             f'  Прогресс: {sent}/{total}\n'
-            f'  Скорость: {speed:.2f} msg/sec\n'
+            f'  Средняя задержка: {delay_info}\n'
             f'  Запущено в: {start_dt.strftime('%H:%M:%S')}\n'
             f'  Ожидаемое завершение в: {end_dt.strftime('%H:%M:%S')}\n'
             f'  Осталось: {_format_time(eta)}\n'
@@ -141,21 +161,25 @@ async def _update_status_text(msg):
             text += f'ID: {task_id}\nИнициализация...\n\n'
             continue
 
-        now = time.time()
-        elapsed = now - start_time
-
-        speed = sent / elapsed if elapsed > 0 else 0
         remaining = total - sent
-        eta = remaining / speed if speed > 0 else 0
+        eta = _estimate_eta(remaining, state['delay_ms'])
+        delay_info = _format_delay(state['delay_ms'])
 
-        end_time = datetime.fromtimestamp(now + eta)
+        end_time = datetime.fromtimestamp(time.time() + eta)
         start_dt = datetime.fromtimestamp(start_time)
+
+        if sent >= total:
+            status = 'Завершён'
+        elif not t['pause_event'].is_set():
+            status = 'Приостановлен'
+        else:
+            status = 'Работает'
 
         text += (
             f'ID: {task_id}\n'
-            f'Статус процесса:\n\n'
+            f'Статус: {status}\n'
             f'Прогресс: {sent}/{total}\n'
-            f'Скорость: {speed:.2f} msg/sec\n'
+            f'Средняя задержка: {delay_info}\n'
             f'Запущено в: {start_dt.strftime('%H:%M:%S')}\n'
             f'Ожидаемое завершение в: {end_time.strftime('%H:%M:%S')}\n'
             f'Осталось: {_format_time(eta)}\n\n'
@@ -166,6 +190,7 @@ async def _update_status_text(msg):
 
 @Client.on_message(filters.me & filters.command('spam', '.'))
 async def spam(app: Client, msg):
+    print('[COMMAND] .spam')
     args = msg.text.split()[1:]
 
     if len(args) < 3:
@@ -199,6 +224,7 @@ async def spam(app: Client, msg):
 
 @Client.on_message(filters.me & filters.command('spamstatus', '.'))
 async def spam_status(app: Client, msg):
+    print('[COMMAND] .spamstatus')
     _cleanup_tasks()
 
     status_msg = await msg.edit_text('[SPAM] Получение статуса...')
@@ -209,6 +235,7 @@ async def spam_status(app: Client, msg):
 
 @Client.on_message(filters.me & filters.command('spampause', '.'))
 async def pause_spam(app: Client, msg):
+    print('[COMMAND] .spampause')
     args = msg.text.split()[1:]
 
     if not args:
@@ -228,6 +255,7 @@ async def pause_spam(app: Client, msg):
 
 @Client.on_message(filters.me & filters.command('spamunpause', '.'))
 async def unpause_spam(app: Client, msg):
+    print('[COMMAND] .spamunpause')
     args = msg.text.split()[1:]
 
     if not args:
@@ -247,6 +275,7 @@ async def unpause_spam(app: Client, msg):
 
 @Client.on_message(filters.me & filters.command('spamstop', '.'))
 async def stop_spam(app: Client, msg):
+    print('[COMMAND] .spamstop')
     args = msg.text.split()[1:]
 
     if not args:
