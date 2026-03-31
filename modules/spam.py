@@ -57,7 +57,8 @@ async def _spam_loop(app: Client, control_msg, text: str, task_data, task_id):
     state = task_data['state']
     state['start_time'] = time.time()
 
-    next_pause_at = random.randint(15, 30)
+    next_pause_at = random.randint(15, 50)
+    last_pause_at = 0
 
     while state['sent'] < state['count']:
 
@@ -77,9 +78,18 @@ async def _spam_loop(app: Client, control_msg, text: str, task_data, task_id):
             await asyncio.sleep(random.uniform(base_delay * 0.7, base_delay * 1.8))
 
             if state['sent'] == next_pause_at:
-                pause = random.uniform(3, 10)
-                await asyncio.sleep(pause)
-                next_pause_at += random.randint(15, 25)
+                pause = random.uniform(2, 8)
+
+                if last_pause_at == 0:
+                    print(f'[SPAM] Пауза: {pause:.2f} сек')
+                else:
+                    msgs_since_last_pause = state['sent'] - last_pause_at
+                    print(f'[SPAM] Пауза: {pause:.2f} сек | прошлая пауза: {msgs_since_last_pause} сообщений назад')
+
+                    await asyncio.sleep(pause)
+
+                last_pause_at = state['sent']
+                next_pause_at += random.randint(15, 50)
 
         except FloodWait as e:
             print(f'[SPAM] FloodWait {e.value} сек')
