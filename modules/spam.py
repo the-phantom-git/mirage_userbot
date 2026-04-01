@@ -81,10 +81,10 @@ async def _spam_loop(app: Client, control_msg, text: str, task_data, task_id):
                 pause = random.uniform(2, 8)
 
                 if last_pause_at == 0:
-                    print(f'[SPAM] Пауза: {pause:.2f} сек')
+                    print(f'[SPAM] [ID: {task_id}] Пауза: {pause:.2f} сек')
                 else:
                     msgs_since_last_pause = state['sent'] - last_pause_at
-                    print(f'[SPAM] Пауза: {pause:.2f} сек | прошлая пауза: {msgs_since_last_pause} сообщений назад')
+                    print(f'[SPAM] [ID: {task_id}] Пауза: {pause:.2f} сек | С прошлой паузы: {msgs_since_last_pause}')
 
                     await asyncio.sleep(pause)
 
