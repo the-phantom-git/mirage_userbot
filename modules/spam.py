@@ -92,16 +92,14 @@ async def _spam_loop(app: Client, control_msg, text: str, task_data, task_id):
                 next_pause_at += random.randint(15, 50)
 
         except FloodWait as e:
-            print(f'[SPAM] FloodWait {e.value} сек')
+            print(f'[SPAM] [ID: {task_id}] FloodWait {e.value} сек')
             await asyncio.sleep(e.value + 1)
 
         except Exception as e:
-            await control_msg.reply(f'[SPAM] Ошибка: {e}')
+            await control_msg.reply(f'[SPAM] [ID: {task_id}] Ошибка: {e}')
             return
-
-    await control_msg.reply(
-        f'[SPAM] Процесс завершён. Отправлено сообщений: {state['sent']}'
-    )
+    await control_msg.reply(f'[SPAM] Процесс завершён\nID: {task_id}\nОтправлено сообщений: {state['sent']}\nВремя: {_format_time(time.time() - state['start_time'])}')
+    print(f'[SPAM] [ID: {task_id}] Процесс завершён.\n  Отправлено сообщений: {state['sent']}\n  Время: {_format_time(time.time() - state['start_time'])}')
 
 
 def _cleanup_tasks():
@@ -222,7 +220,8 @@ async def spam(app: Client, msg):
     task_data['state']['count'] = count
     task_data['state']['delay_ms'] = delay_ms
 
-    control_msg = await msg.edit_text(f'[SPAM] Запущен спам\nID: {task_id}\nСообщений: {count}')
+    control_msg = await msg.edit_text(f'[SPAM] Запущен спам\nID: {task_id}\nСообщений: {count}\nЗадержка: {delay_ms} мс')
+    print(f'[SPAM] Запущен спам\n  ID: {task_id}\n  Сообщений: {count}\n  Задержка: {delay_ms} мс')
 
     task = asyncio.create_task(
         _spam_loop(app, control_msg, text, task_data, task_id)
