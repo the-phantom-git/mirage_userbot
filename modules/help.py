@@ -1,10 +1,12 @@
 from pyrogram import Client, filters
+from .status import command_handler
 
 _COMMANDS = {
     'Основные': ['.help', '.instruction'],
     'Анимация ввода': ['.type', '.typestop'],
-    'Спам': ['.spam', '.spamstatus', '.spampause', '.spamunpause', '.spamstop'],
-    'Калькулятор': ['.calc', '.calcr', '.calcres', '.calcresr', '.calcavg', '.calcavgr'],
+    'Спам': ['\n.spam', '.spamstatus', '.spampause', '.spamunpause', '.spamstop'],
+    'Статус': ['\n.status', '.status uptime', '.status commands', '.status errors', '.status errors detail', '.statusall', '.statusuptime', '.statuscommands', '.statuserrors'],
+    'Калькулятор': ['\n.calc', '.calcr', '.calcres', '.calcresr', '.calcavg', '.calcavgr'],
 }
 
 _BRIEF = {
@@ -23,6 +25,11 @@ _BRIEF = {
     'calcresr': 'Как .calcres, но округляет результат до 2 знаков.',
     'calcavg': 'Вычисляет среднее значение списка чисел.',
     'calcavgr': 'Как .calcavg, но округляет результат до 2 знаков.',
+    'status': 'Показывает общее состояние бота: uptime, сколько команд было вызвано и количество ошибок.',
+    'statuserrors': 'Показывает статистику ошибок за время работы. Список ошибок и количество.',
+    'statuscommands': 'Показывает количество вызовов команд за время работы бота.',
+    'statusuptime': 'Показывает время работы бота с момента запуска.',
+    'statusall': 'Показывает полный отчет по состоянию бота, как .status.',
 }
 
 _INSTRUCTIONS = {
@@ -41,12 +48,18 @@ _INSTRUCTIONS = {
     'calcresr': 'Команда .calcresr работает как .calcres, но округляет результат до 2 знаков.\nПример: .calcresr 10 / 3',
     'calcavg': 'Команда .calcavg вычисляет среднее значение списка чисел.\nПример: .calcavg 10 20 30',
     'calcavgr': 'Команда .calcavgr работает как .calcavg, но округляет результат до 2 знаков.\nПример: .calcavgr 10 20 30',
+    'status': 'Команда .status показывает общий статус бота.\nПример: .status\nПример: .status uptime\nПример: .status commands\nПример: .status errors\nПример: .status errors detail',
+    'statuserrors': 'Команда .statuserrors показывает статистику ошибок.\nПример: .statuserrors\nПример: .statuserrors detail',
+    'statuscommands': 'Команда .statuscommands показывает количество вызовов команд.',
+    'statusuptime': 'Команда .statusuptime показывает время работы бота.',
+    'statusall': 'Команда .statusall показывает полный отчет по состоянию бота.',
 }
 
 def _normalize_command(name: str) -> str:
     return name.lstrip('.').lower()
 
 @Client.on_message(filters.me & filters.command('help', '.'))
+@command_handler()
 async def help_command(app: Client, msg):
     args = msg.text.split()[1:]
     args_text = ' '.join(args)
@@ -65,12 +78,13 @@ async def help_command(app: Client, msg):
     lines = ['[HELP] Список доступных команд:']
     for group, cmds in _COMMANDS.items():
         lines.append(group + ': ' + ', '.join(cmds))
-    lines.append('\nДля подробностей: .help <команда>')
-    lines.append('Для полной инструкции: .instruction <команда>')
+    lines.append('\nДля подробностей:\n.help <команда>')
+    lines.append('Для полной инструкции:\n.instruction <команда>')
 
     await msg.edit_text('\n'.join(lines))
 
 @Client.on_message(filters.me & filters.command('instruction', '.'))
+@command_handler()
 async def instruction_command(app: Client, msg):
     args = msg.text.split()[1:]
     args_text = ' '.join(args)

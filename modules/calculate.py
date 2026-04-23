@@ -4,6 +4,7 @@ import operator
 import re
 
 from pyrogram import Client, filters
+from .status import command_handler
 
 _ALLOWED_OPERATORS = {
     ast.Add: operator.add,
@@ -126,6 +127,7 @@ def _parse_number_list(text: str):
 
 
 @Client.on_message(filters.me & filters.command(['calc', 'calcr'], '.'))
+@command_handler()
 async def calc(app: Client, msg):
     command = msg.text.split()[0][1:]
     print(f'[COMMAND] .{command}')
@@ -148,6 +150,7 @@ async def calc(app: Client, msg):
 
 
 @Client.on_message(filters.me & filters.command(['calcres', 'calcresr'], '.'))
+@command_handler()
 async def calc_res(app: Client, msg):
     command = msg.text.split()[0][1:]
     print(f'[COMMAND] .{command}')
@@ -167,6 +170,7 @@ async def calc_res(app: Client, msg):
 
 
 @Client.on_message(filters.me & filters.command(['calcavg', 'calcavgr'], '.'))
+@command_handler()
 async def calc_avg(app: Client, msg):
     command = msg.text.split()[0][1:]
     print(f'[COMMAND] .{command}')

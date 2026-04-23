@@ -4,6 +4,7 @@ import time
 from datetime import datetime, timedelta
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
+from .status import command_handler
 
 _spam_tasks = {}
 
@@ -197,6 +198,7 @@ async def _update_status_text(msg):
 
 
 @Client.on_message(filters.me & filters.command('spam', '.'))
+@command_handler()
 async def spam(app: Client, msg):
     print('[COMMAND] .spam')
     args = msg.text.split()[1:]
@@ -232,6 +234,7 @@ async def spam(app: Client, msg):
 
 
 @Client.on_message(filters.me & filters.command('spamstatus', '.'))
+@command_handler()
 async def spam_status(app: Client, msg):
     print('[COMMAND] .spamstatus')
     _cleanup_tasks()
@@ -243,6 +246,7 @@ async def spam_status(app: Client, msg):
 
 
 @Client.on_message(filters.me & filters.command('spampause', '.'))
+@command_handler()
 async def pause_spam(app: Client, msg):
     print('[COMMAND] .spampause')
     args = msg.text.split()[1:]
@@ -263,6 +267,7 @@ async def pause_spam(app: Client, msg):
 
 
 @Client.on_message(filters.me & filters.command('spamunpause', '.'))
+@command_handler()
 async def unpause_spam(app: Client, msg):
     print('[COMMAND] .spamunpause')
     args = msg.text.split()[1:]
@@ -283,6 +288,7 @@ async def unpause_spam(app: Client, msg):
 
 
 @Client.on_message(filters.me & filters.command('spamstop', '.'))
+@command_handler()
 async def stop_spam(app: Client, msg):
     print('[COMMAND] .spamstop')
     args = msg.text.split()[1:]

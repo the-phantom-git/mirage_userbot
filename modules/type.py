@@ -1,5 +1,6 @@
 import asyncio
 from pyrogram import Client, filters
+from .status import command_handler
 
 _type_task: asyncio.Task | None = None
 
@@ -7,17 +8,21 @@ _type_task: asyncio.Task | None = None
 async def _typing_loop(msg, text: str, delay_ms: int):
     built = ''
 
-    for ch in text:
-        await msg.edit_text(built + '█')
-        await asyncio.sleep(delay_ms / 1000)
+    try:
+        for ch in text:
+            await msg.edit_text(built + '█')
+            await asyncio.sleep(delay_ms / 1000)
 
-        built += ch
-        await msg.edit_text(built)
+            built += ch
+            await msg.edit_text(built)
 
-    print("[TYPE] Завершено")
+        print("[TYPE] Завершено")
+    except Exception as e:
+        await msg.reply(f'[TYPE] Ошибка: {e}')
 
 
 @Client.on_message(filters.me & filters.command('type', '.'))
+@command_handler()
 async def typing_animation(app: Client, msg):
     global _type_task
 
@@ -50,6 +55,7 @@ async def typing_animation(app: Client, msg):
 
 
 @Client.on_message(filters.me & filters.command('typestop', '.'))
+@command_handler()
 async def stop_typing(app: Client, msg):
     global _type_task
 
